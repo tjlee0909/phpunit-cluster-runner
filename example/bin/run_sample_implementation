@@ -1,0 +1,77 @@
+#!/usr/bin/php
+
+<?php
+include_once dirname(dirname(__DIR__)) . '/src/PHPUnitDistributed/phpunitdistributed_common.php';
+
+use PHPUnitDistributed\Util\Witness;
+use PHPUnitDistributed\Util\Shell;
+use PHPUnitDistributed\PHPUnit\Configuration;
+use PHPUnitDistributed\PHPUnit\RunDistributedMaster;
+
+$app_dir = '/box/www/current/';
+
+$slaves = array(
+    'pod4101-automation425.pod.box.net',
+    'pod4101-automation426.pod.box.net',
+    'pod4101-automation427.pod.box.net',
+    'pod4101-automation428.pod.box.net',
+    'pod4101-automation429.pod.box.net',
+    'pod4101-automation430.pod.box.net',
+    'pod4101-automation431.pod.box.net',
+    'pod4101-automation432.pod.box.net',
+    'pod4101-automation433.pod.box.net',
+    'pod4101-automation434.pod.box.net',
+    'pod4101-automation435.pod.box.net',
+    'pod4101-automation436.pod.box.net',
+    'pod4101-automation437.pod.box.net',
+    'pod4101-automation438.pod.box.net',
+    'pod4101-automation439.pod.box.net',
+    'pod4101-automation440.pod.box.net',
+);
+
+// Update all slaves' application code
+$shell = new Shell();
+
+foreach ($slaves as $slave)
+{
+	$shell->command("ssh $slave 'cd /box/www/current && git fetch scm && git reset --hard scm/v5-dev'");
+}
+
+// Run PHPUnit through the cluster!
+$config = new Configuration(
+    array(
+        'app_directory' => $app_dir,
+        'junit_result_output_path' => '/home/jenkins/result.xml',
+        'test_files' => test_names($app_dir . 'test/php'),
+        'bootstrap_file' => $app_dir . 'test/php/bootstrap.php',
+        'verbose' => true,
+    ),
+    new Witness()
+);
+$runner = new RunDistributedMaster($config, $slaves, new Witness(), true);
+$runner->run();
+
+
+/**
+ * Get all PHPUnit test paths in $directory.
+ *
+ * @param string $directory
+ * @return string[]
+ */
+function test_names($directory)
+{
+    $directory_iterator = new RecursiveDirectoryIterator($directory);
+    $test_iterator = new RegexIterator(
+        new RecursiveIteratorIterator($directory_iterator),
+        '/^.+_Test\.php/',
+        RecursiveRegexIterator::GET_MATCH
+    );
+
+    $test_names = array();
+    foreach ($test_iterator as $file)
+    {
+        $test_names[] = $file[0];
+    }
+
+    return $test_names;
+}

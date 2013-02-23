@@ -1,0 +1,51 @@
+#!/usr/bin/php
+<?php
+namespace PHPUnitDistributed;
+
+use PHPUnitDistributed\Util\File;
+use PHPUnitDistributed\Util\GetOpts;
+
+/**
+ * Simple script used to launch instance of PHPUnitDistributed\DistributedJob\ISlave on the slave machine.
+ * This call is intended to be made through ssh by the PHPUnitDistributed\DistributedJob\MasterAbstract instance
+ * after scp'ing the serialized slave instance onto the slave host.
+ */
+include_once dirname(dirname(__DIR__)) . '/phpunitdistributed_common.php';
+
+$parsed_args = GetOpts::parse(array(
+	// The path to the serialized constructor arguments
+	'args-path' => array('switch' => 'args-path', 'type' => GETOPT_VAL),
+	// The name of the slave class to instantiate (must implement \PHPUnitDistributed\DistributedJob\ISlave)
+	'slave-class' => array('switch' => 'slave-class', 'type' => GETOPT_VAL),
+), $argv);
+
+if (empty($parsed_args['args-path']) || empty($parsed_args['slave-class']))
+{
+	echo 'Missing args: args-path and slave-class are required parameters.';
+	exit(1);
+}
+
+// Get constructor arguments
+$args_file = new File($parsed_args['args-path']);
+
+if (!$args_file->exists())
+{
+	echo $args_file->path() . ' does not exist.';
+	exit(1);
+}
+
+$constructor_arg_array = unserialize(file_get_contents($args_file->path()));
+
+// Get slave class
+$slave_class = new \ReflectionClass($parsed_args['slave-class']);
+$slave_instance = $slave_class->newInstanceArgs($constructor_arg_array);
+
+if ($slave_instance instanceof \PHPUnitDistributed\DistributedJob\ISlave)
+{
+	$slave_instance->run();
+}
+else
+{
+	echo $parsed_args['slave-class'] . ' does not implement DistributedJob_ISlave';
+	exit(1);
+}
