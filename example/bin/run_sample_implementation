@@ -13,12 +13,12 @@ $app_dir = '/your/app/dir/goes/here/';
 
 // The hostnames of the slaves
 $slaves = array(
-    'slave_host_01.your-network.net',
+	'slave_host_01.your-network.net',
 	'slave_host_02.your-network.net',
 	'slave_host_03.your-network.net',
 );
 
-// Update all slaves' application code. In this example, we ssh into each slave,
+// Update all slaves application code. In this example, we ssh into each slave,
 // and update the git source-controlled app directories on those slaves.
 $shell = new Shell();
 
@@ -30,14 +30,14 @@ foreach ($slaves as $slave)
 // Run PHPUnit through the cluster! The 'junit_result_output_path' refers to the
 // location on the master.
 $config = new Configuration(
-    array(
-        'app_directory' => $app_dir,
-        'junit_result_output_path' => '/var/out/result.xml',
+	array(
+		'app_directory' => $app_dir,
+		'junit_result_output_path' => '/var/out/result.xml',
 		'test_directories' => array($app_dir . 'test'),
-        'bootstrap_file' => $app_dir . 'test/setup.php',
-        'verbose' => true,
-    ),
-    new Witness()
+		'bootstrap_file' => $app_dir . 'test/setup.php',
+		'verbose' => true,
+	),
+	new Witness()
 );
 $runner = new RunDistributedMaster($config, $slaves, new TestCount(), new Witness(), true);
 $runner->run();
