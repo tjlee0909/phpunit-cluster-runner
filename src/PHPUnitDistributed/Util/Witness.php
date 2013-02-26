@@ -29,7 +29,7 @@ class Witness
 	 * Echo $msg in $color
 	 * @param bool $eol - print end of line
 	 */
-	private function report($msg = '', $color = null, $eol = true)
+	protected function report($msg = '', $color = null, $eol = true)
 	{
 		$msg = $this->format($msg, $color, $eol);
 		echo $msg;

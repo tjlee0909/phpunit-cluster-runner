@@ -31,10 +31,12 @@ abstract class MasterAbstract
 
 	/**
 	 * Run it!
+	 *
+	 * @param Witness $witness
 	 */
-	public function launch()
+	public function launch($witness = null)
 	{
-		$this->witness = new Witness();
+		$this->witness = $witness ?: new Witness();
 		$this->shell = new Shell();
 		$this->timestamp_for_this_run = GlobalFunctions::time();
 
@@ -89,7 +91,8 @@ abstract class MasterAbstract
 				$successfully_copied = $this->copy_result_from_slave(
 					$slave_host,
 					$expected_slave_result_file_path,
-					$local_path
+					new File($local_path),
+					$this->shell
 				);
 
 				if ($successfully_copied)
@@ -372,17 +375,17 @@ abstract class MasterAbstract
 	 *
 	 * @param string $slave_host - slave hostname
 	 * @param string $remote_path - the absolute path in $slave_host that should have the junit result
-	 * @param string $local_destination - where to copy the junit result to locally
+	 * @param File $local_file_destination - where to copy the junit result to locally
+	 * @param Shell $shell
 	 * @return bool - success?
 	 */
-	protected function copy_result_from_slave($slave_host, $remote_path, $local_destination)
+	protected function copy_result_from_slave($slave_host, $remote_path, $local_file_destination, $shell)
 	{
-		$file = new File($local_destination);
-		$file->delete_if_exists();
+		$local_file_destination->delete_if_exists();
 
 		$cmd = $this->remote_path_is_file($slave_host, $remote_path) ? 'scp' : 'scp -r';
-		$cmd .= " $slave_host:$remote_path " . $file->path();
-		return $this->shell->passthru($cmd)->is_successful();
+		$cmd .= " $slave_host:$remote_path " . $local_file_destination->path();
+		return $shell->passthru($cmd)->is_successful();
 	}
 
 	/**

@@ -8,6 +8,7 @@ use PHPUnitDistributed\Util\File;
 use PHPUnitDistributed\JUnit\XmlResult;
 use PHPUnitDistributed\JUnit\AggregateResult;
 use PHPUnitDistributed\DistributedJob\MasterAbstract;
+use PHPUnitDistributed\TestDivisionStrategy\IStrategy;
 
 /**
  * Master to run PHPUnit serially in a distributed manner.
@@ -23,13 +24,16 @@ class RunDistributedMaster extends MasterAbstract implements IRun
 	private $config;
 	/** @var bool */
 	private $run_serially;
+	/** @var IStrategy */
+	private $test_division_strategy;
 
 	/**
 	 * @param Configuration $config - the object that specifies what PHPUnit is going to run on
 	 * @param string[] $slave_hosts - list of hosts
+	 * @param IStrategy $test_division_strategy - the test division strategy for dividing these PHPUnit tests
 	 * @param Witness $witness
 	 */
-	public function __construct($config, $slave_hosts, $witness, $run_serially = false)
+	public function __construct($config, $slave_hosts, $test_division_strategy, $witness, $run_serially = false)
 	{
 		$this->witness = $witness;
 
@@ -42,6 +46,7 @@ class RunDistributedMaster extends MasterAbstract implements IRun
 		$this->config = $config;
 		$this->slave_hosts = $slave_hosts;
 		$this->run_serially = $run_serially;
+		$this->test_division_strategy = $test_division_strategy;
 	}
 
 	// The implemented abstract methods for IRun
@@ -65,8 +70,7 @@ class RunDistributedMaster extends MasterAbstract implements IRun
 
 	protected function slave_jobs($num_slaves)
 	{
-		$division_strategy = new \PHPUnitDistributed\TestDivisionStrategy\TestCount();
-		$divided_tests = $division_strategy->divide_tests($num_slaves, $this->config()->test_files());
+		$divided_tests = $this->test_division_strategy->divide_tests($num_slaves, $this->config()->test_files());
 
 		$slaves = array();
 
