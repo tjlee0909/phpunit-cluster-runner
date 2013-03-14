@@ -3,6 +3,8 @@ namespace PHPUnitDistributed\PHPUnit;
 
 use PHPUnitDistributed\Util\Witness;
 use PHPUnitDistributed\Util\Shell;
+use PHPUnitDistributed\Util\Rsync;
+use PHPUnitDistributed\Util\GlobalFunctions;
 use PHPUnitDistributed\DistributedJob\ISlave;
 
 /**
@@ -15,6 +17,8 @@ class RunDistributedSlave implements ISlave
 {
 	/** @var string[] */
 	private $constructor_args;
+	/** @var Rsync */
+	private $rsync;
 	/** @var Configuration */
 	private $config;
 	/** @var bool */
@@ -22,11 +26,13 @@ class RunDistributedSlave implements ISlave
 
 	/**
 	 * @param Configuration $config
+	 * @param Rsync $rsync - the rsync command to execute before running
 	 * @param bool $run_serially - run each PHPUnit test in its own PHPUnit invocation
 	 */
-	public function __construct($config, $run_serially = false)
+	public function __construct($config, $rsync = null, $run_serially = false)
 	{
 		$this->constructor_args = func_get_args();
+		$this->rsync = $rsync;
 		$this->config = $config;
 		$this->run_serially = $run_serially;
 	}
@@ -42,6 +48,15 @@ class RunDistributedSlave implements ISlave
 		// In the case that there are more slaves than tests to run, this is a possible non-error case
 		if (count($this->config->test_files()) > 0)
 		{
+			// Rsync if command is specified
+			if ($this->rsync)
+			{
+				if (!$this->rsync->exec())
+				{
+					throw new \RuntimeException('Rsync on slave ' . GlobalFunctions::gethostname() . ' failed.');
+				}
+			}
+
 			if ($this->run_serially)
 			{
 				$phpunit_run = new SerialRun($this->config, new Shell(), new Witness());
