@@ -37,16 +37,14 @@ class RunDistributedMaster extends MasterAbstract implements IRun
 	 * @param Configuration $config - the object that specifies what PHPUnit is going to run on
 	 * @param string[] $slave_hosts - list of hosts
 	 * @param IStrategy $test_division_strategy - the test division strategy for dividing these PHPUnit tests
-	 * @param Shell $shell
-	 * @param Witness $witness
 	 * @param string[] $rsync_exclude - list of $app_directory relative regex items that should not be rsynced from master to slave
 	 * 			this argument will be forwarded as --exclude arguments to rsync.
 	 * @param bool $run_serially - should each PHPUnit test be run in its own phpunit execution
 	 */
-	public function __construct($config, $slave_hosts, $test_division_strategy, $shell, $witness, $rsync_exclude = null, $run_serially = false)
+	public function __construct($config, $slave_hosts, $test_division_strategy, $rsync_exclude = null, $run_serially = false, $shell = null, $witness = null)
 	{
-		$this->shell = $shell;
-		$this->witness = $witness;
+		$this->shell = $shell ?: new Shell();
+		$this->witness = $witness ?: new Witness();
 
 		if (!$config)
 		{

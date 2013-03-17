@@ -18,9 +18,6 @@ $slaves = array(
 	'slave_host_03.your-network.net',
 );
 
-$shell = new Shell();
-$witness = new Witness();
-
 // Run PHPUnit through the cluster! The 'junit_result_output_path' refers to the
 // location on the master.
 $config = new Configuration(
@@ -30,15 +27,12 @@ $config = new Configuration(
 		'test_directories' => array($app_dir . 'test'),
 		'bootstrap_file' => $app_dir . 'test/setup.php', 	// this is app-relative, so maps to /your/app/dir/goes/here/test/setup.php
 		'verbose' => true,
-	),
-	$witness
+	)
 );
 $runner = new RunDistributedMaster(
         $config,
         $slaves,
         new TestCount(),
-        $shell,
-		$witness,
         array('.git*', 'conf/conf_set.conf'),
         true
 );

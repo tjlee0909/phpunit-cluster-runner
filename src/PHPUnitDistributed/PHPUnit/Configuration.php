@@ -38,9 +38,9 @@ class Configuration
 	 *  OPTIONAL verbose -> bool - defaults to false, indicates whether PHPUnit should have verbose console output.
 	 * ]
 	 */
-	public function __construct($params, $witness)
+	public function __construct($params, $witness = null)
 	{
-		$this->witness = $witness;
+		$this->witness = $witness ?: new Witness();
         $this->app_directory = File::append_slash_if_not_exists($this->app_directory);
 
 		// Validate required parameters

@@ -35,6 +35,8 @@ class RunDistributedMaster_Test extends \PHPUnitDistributed\BaseTestCase
 					$config_mock,
 					array('slave1'),
 					$test_division_strat,
+					null,
+					false,
 					$shell,
 					$witness
 				);
