@@ -9,11 +9,15 @@ class SerialRun_Test extends \PHPUnitDistributed\BaseTestCase
 {
 	public function test_build_phpunit_executors_builds_one_phpunit_run_per_test()
 	{
-		$config = new Configuration(array(
-			'app_directory' => '/somedir/',
-			'test_files' => array('/somedir/file1.php', '/somedir/file2.php'),
-			'junit_result_output_path' => '/results.xml',
-		), $this->quiet_witness());
+		$config = new Configuration(
+			'/somedir/',
+			'/results.xml',
+			array('/somedir/file1.php', '/somedir/file2.php'),
+			array(),
+			null,
+			false,
+			$this->quiet_witness()
+		);
 
 		$serial_run = new SerialRun($config, new Shell(), $this->quiet_witness());
 

@@ -12,13 +12,15 @@ class Configuration_Test extends \PHPUnitDistributed\BaseTestCase
 		$first_test_path = '/test/a_Test.php';
 		$second_test_path = '/test/b_Test.php';
 
-		$config = new Configuration(array(
-			'app_directory' => '/some/dir/',
-			'test_files' => array($first_test_path, $second_test_path),
-			'junit_result_output_path' => '/junit_path.xml',
-			'code_coverage_clover_result_path' => '/clover_result_path.xml',
-			'code_coverage_html_result_path' => '/html_result_directory/',
-		), $this->quiet_witness());
+		$config = new Configuration(
+			'/some/dir/',
+			'/junit_path.xml',
+			array($first_test_path, $second_test_path),
+			array(),
+			null,
+			false,
+			$this->quiet_witness()
+		);
 		$generated_xml = ReflectionHelper::invoke_method_on_object($config, 'generate_xml');
 
 		$files = $generated_xml->xpath('/phpunit/testsuites/testsuite/file');
@@ -68,12 +70,16 @@ class Configuration_Test extends \PHPUnitDistributed\BaseTestCase
 
 	public function test_bootstrap_file_set_when_specified()
 	{
-		$config = new Configuration(array(
-			'app_directory' => '/some/dir/',
-			'test_files' => array('/somedir/1_test.php'),
-			'junit_result_output_path' => '/junit_path.xml',
-			'bootstrap_file' => '/bootstrap.php',
-		), $this->quiet_witness());
+		$config = new Configuration(
+			'/some/dir/',
+			'/junit_path.xml',
+			array('/somedir/1_test.php'),
+			array(),
+			'/bootstrap.php',
+			false,
+			$this->quiet_witness()
+		);
+
 		$generated_xml = ReflectionHelper::invoke_method_on_object($config, 'generate_xml');
 
 		$this->assertTrue(isset($generated_xml['bootstrap']), 'The bootstrap attribute in <phpunit> should be set to a value');
@@ -82,11 +88,16 @@ class Configuration_Test extends \PHPUnitDistributed\BaseTestCase
 
 	public function test_junit_output_path_shows_in_xml_when_specified()
 	{
-		$config = new Configuration(array(
-			'app_directory' => '/some/dir/',
-			'test_files' => array('/somedir/1_test.php'),
-			'junit_result_output_path' => '/junit_path.xml',
-		), $this->quiet_witness());
+		$config = new Configuration(
+			'/some/dir/',
+			'/junit_path.xml',
+			array('/somedir/1_test.php'),
+			array(),
+			null,
+			false,
+			$this->quiet_witness()
+		);
+
 		$generated_xml = ReflectionHelper::invoke_method_on_object($config, 'generate_xml');
 
 		$log_nodes = $generated_xml->xpath('/phpunit/logging/log');
@@ -104,11 +115,15 @@ class Configuration_Test extends \PHPUnitDistributed\BaseTestCase
 
 		$config_shmock = $this->shmock('PHPUnitDistributed\PHPUnit\Configuration', function($config) use($self, $file_name, $witness)
 		{
-			$config->set_constructor_arguments(array(
-				'app_directory' => '/some/dir/',
-				'test_directories' => array('/somedir'),
-				'junit_result_output_path' => '/result.xml',
-			), $witness);
+			$config->set_constructor_arguments(
+				'/some/dir/',
+				'/junit_path.xml',
+				array('/somedir/1_test.php'),
+				array(),
+				null,
+				false,
+				$witness
+			);
 
 			$xml_mock = $self->shmock('Dummy', function($xml) use($file_name)
 			{
