@@ -33,8 +33,8 @@ class Configuration
 	 * @param string $junit_result_output_path - the absolute path to junit results file. If not specified, won't output one
 	 * @param string[] $test_files - the array of PHPUnit test files. Must be absolute paths (ie: /box/www/current/test/php/controllers/Box_Preview_Test.php).
 	 * @param string[] $test_directories - the array of directories where _Test.php files live. Must be absolute paths (ie: /box/www/taejun/test/php/controllers), and test files must end in _Test.php.
-	 * @param null $bootstrap_file - defaults to no bootstrap file, the absolute path to the bootstrap PHP file for the PHPUnit run.
-	 * @param bool $verbose - defaults to false, indicates whether PHPUnit should have verbose console output.
+	 * @param string $bootstrap_file [optional] - defaults to no bootstrap file, the absolute path to the bootstrap PHP file for the PHPUnit run.
+	 * @param bool $verbose [optional] - defaults to false, indicates whether PHPUnit should have verbose console output.
 	 */
 	public function __construct($app_directory, $junit_result_output_path, $test_files, $test_directories, $bootstrap_file = null, $verbose = false, $witness = null)
 	{

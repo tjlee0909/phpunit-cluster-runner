@@ -11,6 +11,7 @@ use PHPUnitDistributed\JUnit\XmlResult;
 use PHPUnitDistributed\JUnit\AggregateResult;
 use PHPUnitDistributed\DistributedJob\MasterAbstract;
 use PHPUnitDistributed\TestDivisionStrategy\IStrategy;
+use PHPUnitDistributed\TestDivisionStrategy\TestCount;
 
 /**
  * Master to run PHPUnit serially in a distributed manner.
@@ -36,12 +37,11 @@ class RunDistributedMaster extends MasterAbstract implements IRun
 	/**
 	 * @param Configuration $config - the object that specifies what PHPUnit is going to run on
 	 * @param string[] $slave_hosts - list of hosts
-	 * @param IStrategy $test_division_strategy - the test division strategy for dividing these PHPUnit tests
-	 * @param string[] $rsync_exclude - list of $app_directory relative regex items that should not be rsynced from master to slave
-	 * 			this argument will be forwarded as --exclude arguments to rsync.
-	 * @param bool $run_serially - should each PHPUnit test be run in its own phpunit execution
+	 * @param IStrategy $test_division_strategy [optional] - the test division strategy for dividing these PHPUnit tests
+	 * @param string[] $rsync_exclude [optional] - list of $app_directory relative regex items that should not be rsynced from master to slave this argument will be forwarded as --exclude arguments to rsync.
+	 * @param bool $run_serially [optional] - should each PHPUnit test be run in its own phpunit execution
 	 */
-	public function __construct($config, $slave_hosts, $test_division_strategy, $rsync_exclude = null, $run_serially = false, $shell = null, $witness = null)
+	public function __construct($config, $slave_hosts, $test_division_strategy = null, $rsync_exclude = null, $run_serially = false, $shell = null, $witness = null)
 	{
 		$this->shell = $shell ?: new Shell();
 		$this->witness = $witness ?: new Witness();
@@ -54,9 +54,9 @@ class RunDistributedMaster extends MasterAbstract implements IRun
 
 		$this->config = $config;
 		$this->slave_hosts = $slave_hosts;
+		$this->test_division_strategy = $test_division_strategy ?: new TestCount();
 		$this->rsync_exclude = $rsync_exclude;
 		$this->run_serially = $run_serially;
-		$this->test_division_strategy = $test_division_strategy;
 	}
 
 	// The implemented abstract methods for IRun

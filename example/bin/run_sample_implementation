@@ -1,13 +1,9 @@
 #!/usr/bin/php
-
 <?php
 include_once dirname(dirname(__DIR__)) . '/src/PHPUnitDistributed/phpunitdistributed_common.php';
 
-use PHPUnitDistributed\Util\Witness;
-use PHPUnitDistributed\Util\Shell;
 use PHPUnitDistributed\PHPUnit\Configuration;
 use PHPUnitDistributed\PHPUnit\RunDistributedMaster;
-use PHPUnitDistributed\TestDivisionStrategy\TestCount;
 
 $app_dir = '/your/app/dir/goes/here/';
 
@@ -18,23 +14,15 @@ $slaves = array(
 	'slave_host_03.your-network.net',
 );
 
-// See src/PHPUnitDistributed/PHPUnit/Configuration.php
+// See src/PHPUnitDistributed/PHPUnit/Configuration.php for implementation
 $config = new Configuration(
 	$app_dir,
 	'/var/out/result.xml',
 	array(),
 	array($app_dir . 'test'),
-	$app_dir . 'test/setup.php',
-	true
+	$app_dir . 'test/setup.php'
 );
 
-// See src/PHPUnitDistributed/PHPUnit/RunDistributedMaster.php
-$runner = new RunDistributedMaster(
-        $config,
-        $slaves,
-        new TestCount(),
-        array('.git*', 'conf/conf_set.conf'),
-        true
-);
-
+// See src/PHPUnitDistributed/PHPUnit/RunDistributedMaster.php for implementation
+$runner = new RunDistributedMaster($config, $slaves);
 $runner->run();
