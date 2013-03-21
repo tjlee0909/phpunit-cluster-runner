@@ -16,7 +16,7 @@ In order to use the PHPUnitDistributed package, you will need at least two netwo
 - Has ssh key pairs setup between the master host and each slave host.   
 - Has PHP 5.3+ installed.   
 - Has the PHPUnit PEAR package installed.  
-- The application code (PHP and PHPUnit files) must consistently be in the same directory on each of the hosts with the same permissions. The same goes for the directory that this package is installed in (same location with same permissions on all hosts).
+- The source code for this package must consistently be in the same directory on each of the hosts with the same permissions.
 
 Quick start guide
 ======================================
